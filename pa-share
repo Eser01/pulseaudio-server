@@ -1,0 +1,67 @@
+#!/bin/sh
+
+. ~/.config/pa-share/config
+
+INSTANCE_INDEX=$(pactl list | grep tcp -B1 | grep M | sed 's/[^0-9]//g')
+SELF_NAME=$(basename "$0")
+
+pashare_start()
+{
+	if [ -z "$INSTANCE_INDEX" ]
+	then
+		INSTANCE_INDEX=$(pactl load-module module-simple-protocol-tcp rate=48000 format=s16le channels=2 source=0 record=true port=$port)
+	else
+		echo "Sound Server already started!" >&2
+	fi
+}
+
+pashare_stop()
+{
+	if [ -z "$INSTANCE_INDEX" ]
+	then
+		echo "Sound Server is not set!" >&2
+	else
+		pactl unload-module $INSTANCE_INDEX
+	fi
+}
+
+pashare_status()
+{
+	if [ -z "$INSTANCE_INDEX" ]
+	then
+		echo "Sound Server is not running!"
+	else
+		echo "Sound Server is running!"
+	fi
+}
+
+pashare_help()
+{
+	echo "Usage: $SELF_NAME OPTION"
+	echo ""
+	echo "Options:"
+	echo "	start	Start the sound server."
+	echo "	stop	Stop the sound server."
+	echo "	status	Show if the server is running."
+	echo "	help	Display current help."
+	echo ""
+	exit 0
+}
+
+case "$1" in
+	start)
+		pashare_start
+		;;
+	stop)
+		pashare_stop
+		;;
+	status)
+		pashare_status
+		;;
+	help)
+		pashare_help
+		;;
+	*)
+		echo "Usage: $SELF_NAME start|stop|status|help" >&2
+		;;
+esac
