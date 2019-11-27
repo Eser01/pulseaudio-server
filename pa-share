@@ -1,6 +1,13 @@
 #!/bin/sh
 
-. ~/.config/pa-share/config
+# Default config
+port=8380
+
+# Custom config
+CONFG_FILE=~/.config/pa-share/config
+if test -f "$FILE"; then
+	. $CONFG_FILE
+fi
 
 INSTANCE_INDEX=$(pactl list | grep tcp -B1 | grep M | sed 's/[^0-9]//g')
 SELF_NAME=$(basename "$0")
